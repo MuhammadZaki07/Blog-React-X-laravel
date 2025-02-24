@@ -1,17 +1,29 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { Camera, Save, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'; // Import navigasi
+import { useNavigate, useParams } from 'react-router-dom';
 
-function BuatArtikel() {
+function Edit() {
+  const { id } = useParams(); 
+  const navigate = useNavigate();
   const [previewImage, setPreviewImage] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
-    content: '',
-    category: ''
+    content: ''
   });
 
-  const navigate = useNavigate(); // Inisialisasi navigasi
+  // Ambil data artikel dari localStorage saat komponen dimount
+  useEffect(() => {
+    const storedArticles = JSON.parse(localStorage.getItem('articles')) || [];
+    const articleToEdit = storedArticles.find((article) => article.id === parseInt(id));
+    if (articleToEdit) {
+      setFormData({
+        title: articleToEdit.title,
+        content: articleToEdit.content
+      });
+      setPreviewImage(articleToEdit.image);
+    }
+  }, [id]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -22,10 +34,6 @@ function BuatArtikel() {
       };
       reader.readAsDataURL(file);
     }
-  };
-
-  const handleRemoveImage = () => {
-    setPreviewImage(null);
   };
 
   const handleInputChange = (e) => {
@@ -46,23 +54,28 @@ function BuatArtikel() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const newArticle = {
-      id: Date.now(), // ID unik untuk artikel
+    const updatedArticle = {
+      id: parseInt(id),
       title: formData.title,
       content: formData.content,
-      category: formData.category,
       image: previewImage
     };
 
     // Ambil artikel yang sudah ada di localStorage
-    const existingArticles = JSON.parse(localStorage.getItem('articles')) || [];
-    // Tambahkan artikel baru
-    existingArticles.push(newArticle);
+    const storedArticles = JSON.parse(localStorage.getItem('articles')) || [];
+    const updatedArticles = storedArticles.map((article) =>
+      article.id === parseInt(id) ? updatedArticle : article
+    );
+
     // Simpan kembali ke localStorage
-    localStorage.setItem('articles', JSON.stringify(existingArticles));
+    localStorage.setItem('articles', JSON.stringify(updatedArticles));
 
     // Arahkan ke halaman Artikelku
     navigate('/dashboard/artikelku');
+  };
+
+  const handleRemoveImage = () => {
+    setPreviewImage(null);
   };
 
   return (
@@ -88,8 +101,8 @@ function BuatArtikel() {
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden relative">
         {/* Header */}
         <div className="p-6 border-b border-slate-200">
-          <h1 className="text-2xl font-bold text-slate-900">Buat Artikel Baru</h1>
-          <p className="text-slate-600 mt-1">Isi detail artikel di bawah ini</p>
+          <h1 className="text-2xl font-bold text-slate-900">Edit Artikel</h1>
+          <p className="text-slate-600 mt-1">Edit detail artikel di bawah ini</p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -106,26 +119,6 @@ function BuatArtikel() {
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
               placeholder="Masukkan judul artikel"
             />
-          </div>
-
-          {/* Kategori Artikel */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Kategori Artikel
-            </label>
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-            >
-              <option value="">Pilih kategori</option>
-              <option value="Politik">Politik</option>
-              <option value="Ekonomi">Ekonomi</option>
-              <option value="Olahraga">Olahraga</option>
-              <option value="Teknologi">Teknologi</option>
-              <option value="Hiburan">Hiburan</option>
-            </select>
           </div>
 
           {/* Gambar Artikel */}
@@ -188,7 +181,9 @@ function BuatArtikel() {
                   'insertdatetime media table paste help wordcount'
                 ],
                 toolbar:
-                  'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help'
+                  'undo redo | formatselect | bold italic backcolor | \
+                  alignleft aligncenter alignright alignjustify | \
+                  bullist numlist outdent indent | removeformat | help'
               }}
             />
           </div>
@@ -200,7 +195,7 @@ function BuatArtikel() {
               className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-red-600 transition-colors shadow-lg"
             >
               <Save size={20} />
-              Simpan Artikel
+              Simpan Perubahan
             </button>
           </div>
         </form>
@@ -209,4 +204,4 @@ function BuatArtikel() {
   );
 }
 
-export default BuatArtikel;
+export default Edit;

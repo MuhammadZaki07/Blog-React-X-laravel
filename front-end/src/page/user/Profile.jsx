@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Camera, Save, X, Lock } from 'lucide-react';
 
 function EditProfile() {

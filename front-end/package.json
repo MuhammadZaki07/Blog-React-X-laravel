@@ -12,6 +12,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.0.7",
     "@tinymce/tinymce-react": "^6.0.0",
+    "axios": "^1.7.9",
     "framer-motion": "^12.4.5",
     "lucide-react": "^0.475.0",
     "prop-types": "^15.8.1",

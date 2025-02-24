@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PlusCircle, Trash2, Edit } from 'lucide-react';
 
-function Artikelku() {
+function MyArticle() {
   const [articles, setArticles] = useState([]);
   const navigate = useNavigate();
 
@@ -61,7 +61,7 @@ function Artikelku() {
           {/* Judul Halaman */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
-              Artikelku
+              MyArticle
             </h1>
             <p className="text-slate-600 text-lg">
               Berikut adalah daftar artikel yang telah Anda tulis:
@@ -120,4 +120,4 @@ function Artikelku() {
   );
 }
 
-export default Artikelku;
+export default MyArticle;

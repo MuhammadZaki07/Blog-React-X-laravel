@@ -1,19 +1,19 @@
 import { createBrowserRouter } from "react-router-dom";
-import DefaultLayout from "./page/DefaultLayout";
+import DefaultLayout from "./DefaultLayout";
+import UserLayout from "./Userlayout";
 import Beranda from "./page/Beranda";
-import Politik from "./page/politik/Politik";
-import Ekonomi from "./page/Ekonomi/Ekonomi";
-import Olahraga from "./page/Olahraga/Olahraga";
-import Teknologi from "./page/Teknologi/Teknologi";
-import Hiburan from "./page/Hiburan/Hiburan";
-import Login from "./page/Login/Login";
-import Dashboard from "./page/DashboardUser/Dashboard";
-import EditProfile from "./page/DashboardUser/pageDashboard/EditProfile";
-import BuatArtikel from "./page/DashboardUser/pageDashboard/BuatArtikel";
-import Artikelku from "./page/DashboardUser/pageDashboard/Artikelku";
-import UserDashboard from "./page/DashboardUser/pageDashboard/UserDashboard";
-import EditArtikel from "./page/DashboardUser/pageDashboard/EditArtikel";
-
+import Politik from "./page/Politik";
+import Ekonomi from "./page/Ekonomi";
+import Olahraga from "./page/Olahraga";
+import Teknologi from "./page/Teknologi";
+import Hiburan from "./page/Hiburan";
+import UserDashboard from "./page/user/Dashboard";
+import EditProfile from "./page/user/Profile";
+import Create from "./page/user/Article/Create";
+import Artikelku from "./page/user/Article/MyArticle";
+import EditArtikel from "./page/user/Article/Edit";
+import Auth from "./page/Auth/Auth";
+import NotFound from "./NotFound";
 export const route = createBrowserRouter([
   {
     path: "/",
@@ -47,24 +47,40 @@ export const route = createBrowserRouter([
         path: "/hiburan",
         element: <Hiburan />,
       },
+    ],
+  },
+  {
+    path: "/user",
+    element: <UserLayout />,
+    children: [
       {
-        path: "/login",
-        element: <Login />,
+        path: "dashboard",
+        element: <UserDashboard />,
+      },
+      {
+        path: "editprofile",
+        element: <EditProfile />,
+      },
+      {
+        path: "create-article",
+        element: <Create />,
+      },
+      {
+        path: "my-article",
+        element: <Artikelku />,
+      },
+      {
+        path: "article-edit/:id",
+        element: <EditArtikel />,
       },
     ],
   },
   {
-    path: "/dashboard",
-    element: <Dashboard />,
-    children: [
-      { path: "userdashboard", element: <UserDashboard /> },
-      { path: "editprofile", element: <EditProfile /> },
-      { path: "buatartikel", element: <BuatArtikel /> },
-      { path: "artikelku", element: <Artikelku /> },
-      {
-        path: "editartikel/:id",
-        element: <EditArtikel />,
-      },
-    ],
+    path: "auth",
+    element: <Auth />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);

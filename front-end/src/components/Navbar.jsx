@@ -1,12 +1,6 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    navigate('/login'); 
-  };
-
   return (
     <nav className="w-full bg-slate-900 flex justify-between px-32 py-4.5 items-center border-b border-b-slate-500/[0.5]">
       <div>
@@ -25,9 +19,9 @@ const Navbar = () => {
         </form>
 
         <div>
-          <button className="bg-red-700 py-1.5 px-4 text-white rounded-lg text-lg hover:bg-red-600 cursor-pointer" onClick={handleClick}>
+          <Link to={`/auth`} className="bg-red-700 py-1.5 px-4 text-white rounded-lg text-lg hover:bg-red-600 cursor-pointer">
             Masuk
-          </button>
+          </Link>
         </div>
       </div>
     </nav>

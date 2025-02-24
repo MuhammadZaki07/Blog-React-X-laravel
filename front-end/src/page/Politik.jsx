@@ -1,5 +1,5 @@
 import React from 'react'
-import PolitikArticle from '../../components/PolitikArticle'
+import PolitikArticle from '../components/PolitikArticle'
 
 function Politik() {
   return (
