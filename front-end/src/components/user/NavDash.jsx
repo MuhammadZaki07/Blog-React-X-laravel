@@ -1,5 +1,5 @@
-import React from 'react';
 import { Menu, LogOut } from 'lucide-react';
+import PropTypes from 'prop-types';
 
 function NavDash({ toggleSidebar }) { 
   return (
@@ -10,12 +10,16 @@ function NavDash({ toggleSidebar }) {
         </button>
         <h1 className="text-xl font-bold">Dashboard</h1>
       </div>
-      <button className="bg-red-500 hover:bg-red-600 p-2 rounded-lg flex items-center gap-2">
+      <button className="flex items-center gap-2 px-5 text-white hover:text-slate cursor-pointer">
         <LogOut size={20} />
         <span>Logout</span>
       </button>
     </div>
   );
 }
+
+NavDash.propTypes = {
+  toggleSidebar: PropTypes.func.isRequired,
+};
 
 export default NavDash;

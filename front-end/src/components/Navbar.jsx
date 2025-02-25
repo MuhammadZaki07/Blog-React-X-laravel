@@ -8,7 +8,7 @@ const Navbar = () => {
         <img src="/assets/loger.png" className="w-64" alt="loger.png" />
         </Link>
       </div>
-      <div className="flex gap-5">
+      <div className="flex gap-5 items-center">
         <form action="" className="relative">
           <input
             type="text"
