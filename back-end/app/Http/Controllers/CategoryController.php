@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
@@ -11,7 +13,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $category = Category::all();
+        return response()->json( $category,200);
     }
 
     /**
@@ -27,7 +30,19 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validation = Validator::make($request->all(),[
+            "name" => 'required|string|min:2'
+        ]);
+
+        if($validation->fails()){
+            return response()->json(["error" => $validation->errors()],422);
+        }
+
+        $category = Category::create([
+            "name" => $request->name
+        ]);
+
+        return response()->json($category);
     }
 
     /**
@@ -43,7 +58,8 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+        return response()->json( $category,200);
     }
 
     /**
@@ -51,7 +67,19 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validation = Validator::make($request->all(),[
+            "name" => 'required|string|min:2'
+        ]);
+
+        if($validation->fails()){
+            return response()->json(["error" => $validation->errors()],422);
+        }
+
+        $category = Category::findOrFail($id);
+        $category->update([
+            "name" => $request->name
+        ]);
+        return response()->json( $category,200);
     }
 
     /**
@@ -59,6 +87,8 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+        $category->delete();
+        return response()->json( $category,200);
     }
 }

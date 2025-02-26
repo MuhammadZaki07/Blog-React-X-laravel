@@ -1,11 +1,22 @@
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 const Navbar = () => {
+  const { user,token } = useContext(AuthContext);
+  const [direct, setDirect] = useState("");
+
+  useEffect(() => {
+    console.log("Data user saat ini:", user);
+    if (user && user.role) {
+      setDirect(user.role === "admin" ? "/admin/dashboard" : "/user/dashboard");
+    }
+  }, [user]);
   return (
     <nav className="w-full bg-slate-900 flex justify-between px-32 py-4.5 items-center border-b border-b-slate-500/[0.5]">
       <div>
         <Link to={"/"}>
-        <img src="/assets/loger.png" className="w-64" alt="loger.png" />
+          <img src="/assets/loger.png" className="w-64" alt="loger.png" />
         </Link>
       </div>
       <div className="flex gap-5 items-center">
@@ -19,9 +30,21 @@ const Navbar = () => {
         </form>
 
         <div>
-          <Link to={`/auth`} className="bg-red-700 py-1.5 px-4 text-white rounded-lg text-lg hover:bg-red-600 cursor-pointer">
-            Masuk
-          </Link>
+          {!token ? (
+            <Link
+              to={`/auth`}
+              className="text-white py-1.5 px-4 rounded-lg text-lg hover:text-slate-300 cursor-pointer"
+            >
+              Masuk
+            </Link>
+          ) : (
+            <Link
+              to={direct}
+              className="text-white py-1.5 px-4 rounded-lg text-lg hover:text-slate-300 cursor-pointer"
+            >
+              dashboard <i className="bi bi-arrow-bar-right"></i>
+            </Link>
+          )}
         </div>
       </div>
     </nav>

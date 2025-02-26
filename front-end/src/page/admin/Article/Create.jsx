@@ -1,17 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import { Camera, Save, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { AuthContext } from "../../../../context/AuthContext";
 
 function Create() {
+  const { token } = useContext(AuthContext);
   const [previewImage, setPreviewImage] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     title: "",
-    content: "",
-    category: "",
+    slug: "",
+    body: "",
+    category_id: "",
+    status: "active",
+    image: null,
   });
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8000/api/category", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setCategories(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching categories:", error);
+      });
+  }, []);
+  
+
+  useEffect(() => {
+    const slug = formData.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    setFormData((prev) => ({ ...prev, slug }));
+  }, [formData.title]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -21,32 +53,64 @@ function Create() {
         setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
+      setFormData((prev) => ({ ...prev, image: file }));
     }
   };
 
   const handleRemoveImage = () => {
     setPreviewImage(null);
+    setFormData((prev) => ({ ...prev, image: null }));
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleEditorChange = (content) => {
-    setFormData((prev) => ({
-      ...prev,
-      content,
-    }));
+  const handleEditorChange = (body) => {
+    setFormData((prev) => ({ ...prev, body }));
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      data.append(key, value);
+    });
+
+    try {
+      console.log("Token yang dikirim:", token);
+      await axios.post("http://localhost:8000/api/article", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      
+      
+
+      setFormData({
+        title: "",
+        body: "",
+        category_id: "",
+        image: null,
+      });
+
+      navigate("/admin/my-article");
+    } catch (error) {
+      console.error("Error saat mengirim data:", error);
+      console.log("Detail error:", error.response?.data);
+
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
+      }
+    }
+  };
 
   return (
     <div className="py-10">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl border border-slate-300/[0.5] overflow-hidden relative">
+      <div className="max-w-4xl mx-auto bg-white rounded-xl border border-slate-300/[0.5] overflow-hidden">
         <div className="p-6 border-b border-slate-200">
           <h1 className="text-2xl font-bold text-slate-900">
             Create New Article
@@ -56,7 +120,7 @@ function Create() {
           </p>
         </div>
 
-        <form className="p-6 space-y-6">
+        <form className="p-6 space-y-6" onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -67,30 +131,14 @@ function Create() {
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none border-slate-500/[0.5]"
                 placeholder="Enter article title"
               />
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1">{errors.title[0]}</p>
+              )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Article Category
-              </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none"
-              >
-                <option value="">Select category</option>
-                <option value="Politics">Politics</option>
-                <option value="Economy">Economy</option>
-                <option value="Sports">Sports</option>
-                <option value="Technology">Technology</option>
-                <option value="Entertainment">Entertainment</option>
-              </select>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-5">
+
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Slug
@@ -98,26 +146,59 @@ function Create() {
               <input
                 type="text"
                 name="slug"
+                value={formData.slug}
                 readOnly
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none bg-gray-100"
-                placeholder="Auto generate slug"
+                className="w-full px-4 py-2 bg-gray-100 border rounded-lg focus:outline-none border-slate-500/[0.5]"
               />
+              {errors.slug && (
+                <p className="text-red-500 text-sm mt-1">{errors.slug[0]}</p>
+              )}
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Category
+              </label>
+              <select
+                name="category_id"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none border-slate-500/[0.5]"
+              >
+                <option value="">Select category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              {errors.category_id && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.category_id[0]}
+                </p>
+              )}
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Status
               </label>
               <select
                 name="status"
-                value={formData.category}
+                value={formData.status}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none border-slate-500/[0.5]"
               >
                 <option value="active">Active</option>
                 <option value="non-active">Non-Active</option>
               </select>
+              {errors.status && (
+                <p className="text-red-500 text-sm mt-1">{errors.status[0]}</p>
+              )}
             </div>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Article Image
@@ -157,40 +238,42 @@ function Create() {
                 />
               </label>
             </div>
+            {errors.image && (
+              <p className="text-red-500 text-sm mt-1">{errors.image[0]}</p>
+            )}
           </div>
 
           <div>
             <Editor
               apiKey={import.meta.env.VITE_API_KEY_TINYMCE}
-              value={formData.content}
+              value={formData.body}
               onEditorChange={handleEditorChange}
               init={{
                 height: 400,
                 menubar: false,
-                plugins: [
-                  "advlist autolink lists link image charmap preview anchor",
-                  "searchreplace visualblocks code fullscreen",
-                  "insertdatetime media table paste help wordcount",
-                  "code",
-                ],
+                plugins:
+                  "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount",
                 toolbar:
-                  "undo redo | formatselect |blocks " +
-                  "bold italic backcolor | alignleft aligncenter alignright alignjustify | " +
-                  "bullist numlist outdent indent | removeformat | " +
-                  "code",
+                  "undo redo | formatselect fontsizeselect | bold italic underline strikethrough | " +
+                  "alignleft aligncenter alignright | bullist numlist outdent indent | removeformat | code",
                 content_style:
                   "body { font-family:Arial,sans-serif; font-size:14px }",
+                block_formats:
+                  "Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Heading 5=h5; Heading 6=h6",
               }}
             />
+
+            {errors.body && (
+              <p className="text-red-500 text-sm mt-1">{errors.body[0]}</p>
+            )}
           </div>
 
           <div className="flex justify-end">
             <button
               type="submit"
-              className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-red-600 transition-colors shadow-lg"
+              className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-red-600"
             >
-              <Save size={20} />
-              Save
+              <Save size={20} /> Save
             </button>
           </div>
         </form>

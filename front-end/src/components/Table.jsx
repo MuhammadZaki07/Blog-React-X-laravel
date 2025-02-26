@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Search, ArrowUpDown } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const TableComponent = ({ columns, data, onEdit, onDelete }) => {
   const [search, setSearch] = useState("");
-  const [sortedData, setSortedData] = useState(data);
+  const [sortedData, setSortedData] = useState([]);
   const [isAscending, setIsAscending] = useState(true);
+
+  // **Update sortedData ketika data berubah**
+  useEffect(() => {
+    setSortedData(data);
+  }, [data]);
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
@@ -15,8 +20,12 @@ const TableComponent = ({ columns, data, onEdit, onDelete }) => {
   const handleSort = () => {
     const sorted = [...sortedData].sort((a, b) =>
       isAscending
-        ? a[columns[0].key].localeCompare(b[columns[0].key])
-        : b[columns[0].key].localeCompare(a[columns[0].key])
+        ? a[columns[0].key]
+            ?.toString()
+            .localeCompare(b[columns[0].key]?.toString())
+        : b[columns[0].key]
+            ?.toString()
+            .localeCompare(a[columns[0].key]?.toString())
     );
     setSortedData(sorted);
     setIsAscending(!isAscending);
@@ -52,7 +61,7 @@ const TableComponent = ({ columns, data, onEdit, onDelete }) => {
       <div className="overflow-x-auto">
         <table className="w-full border border-gray-300">
           <thead>
-          <tr className="bg-gray-100 text-gray-600">
+            <tr className="bg-gray-100 text-gray-600">
               {columns.map((col) => (
                 <th key={col.key} className="p-3 text-left">
                   {col.label}
@@ -64,39 +73,47 @@ const TableComponent = ({ columns, data, onEdit, onDelete }) => {
           <tbody>
             {filteredData.length > 0 ? (
               filteredData.map((row, index) => (
-                <tr key={index} className="border-b border-gray-300 hover:bg-gray-100">
+                <tr
+                  key={index}
+                  className="border-b border-gray-300 hover:bg-gray-100"
+                >
                   {columns.map((col) => (
                     <td key={col.key} className="p-3">
                       {col.key === "image" ? (
                         <img
-                          src={row[col.key]}
+                          src={`http://127.0.0.1:8000/storage/${row[col.key]}`}
                           alt={row.title}
                           className="w-16 h-16 object-cover rounded"
                         />
+                      ) : col.key === "category" ? (
+                        row.category?.name
                       ) : (
                         row[col.key]
                       )}
                     </td>
                   ))}
                   <td className="p-3 text-center">
-                    <Link to={`/user/edit`}
+                    <button
                       className="bg-blue-500 text-white px-3 py-2 cursor-pointer rounded-lg hover:bg-blue-600 mr-2"
                       onClick={() => onEdit(row)}
                     >
-                      <i className="bi bi-pencil-square"></i>
-                    </Link>
+                      Edit
+                    </button>
                     <button
                       className="bg-red-500 text-white px-3 py-2 cursor-pointer rounded-lg hover:bg-red-600"
                       onClick={() => onDelete(row)}
                     >
-                      <i className="bi bi-trash"></i>
+                      Delete
                     </button>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length + 1} className="p-4 text-center text-gray-500">
+                <td
+                  colSpan={columns.length + 1}
+                  className="p-4 text-center text-gray-500"
+                >
                   No data available
                 </td>
               </tr>

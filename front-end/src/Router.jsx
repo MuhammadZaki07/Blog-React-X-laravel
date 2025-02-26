@@ -18,12 +18,13 @@ import Auth from "./page/Auth/Auth";
 import NotFound from "./NotFound";
 import AdminLayout from "./AdminLayout";
 import Dashboard from "./page/admin/Dashboard";
-import Article from "./page/admin/Article";
+import Article from "./page/admin/Article/MyArticle";
 import Category from "./page/admin/Category";
 import DataUser from "./page/admin/DataUser";
 import DataArticle from "./page/admin/DataArticle";
 import Profile from "./page/admin/Profile";
 import Tags from "./page/admin/Tags";
+import CreateUser from "./page/admin/CreateUser";
 export const route = createBrowserRouter([
   {
     path: "/",
@@ -100,6 +101,10 @@ export const route = createBrowserRouter([
       {
         path: "create",
         element: <CreateArticle />,
+      },
+      {
+        path: "create-user",
+        element: <CreateUser />,
       },
       {
         path: "edit",

@@ -11,7 +11,7 @@ class AuthController extends Controller
 {
     public function getData(Request $request)
     {
-        return $request->user();
+        return response()->json($request->user());
     }
 
     public function login(Request $request)

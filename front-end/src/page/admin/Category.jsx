@@ -1,32 +1,46 @@
-import { useState } from "react";
+import axios from "axios";
+import { useContext, useEffect, useState } from "react";
 import { FaEdit, FaTrash, FaSort } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
+import { AuthContext } from "../../../context/AuthContext";
 
 function Category() {
-  const [categories, setCategories] = useState([
-    { id: 1, name: "Technology" },
-    { id: 2, name: "Business" },
-    { id: 3, name: "Health" },
-    { id: 4, name: "Education" },
-  ]);
+  const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const { token } = useContext(AuthContext);
+  const [errors, setErrors] = useState({});
   const [currentCategory, setCurrentCategory] = useState({
     id: null,
     name: "",
   });
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("http://127.0.0.1:8000/api/category", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories", error);
+    }
+  };
+
   const filteredCategories = categories.filter((cat) =>
     cat.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const sortedCategories = [...filteredCategories].sort((a, b) => {
-    return sortOrder === "asc"
+  const sortedCategories = [...filteredCategories].sort((a, b) =>
+    sortOrder === "asc"
       ? a.name.localeCompare(b.name)
-      : b.name.localeCompare(a.name);
-  });
+      : b.name.localeCompare(a.name)
+  );
 
   const toggleSort = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -43,35 +57,60 @@ function Category() {
     setCurrentCategory({ id: null, name: "" });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEdit) {
-      setCategories((prev) =>
-        prev.map((cat) =>
-          cat.id === currentCategory.id ? currentCategory : cat
-        )
-      );
-    } else {
-      setCategories((prev) => [
-        ...prev,
-        { id: prev.length + 1, name: currentCategory.name },
-      ]);
+    try {
+      if (isEdit) {
+        await axios.put(
+          `http://127.0.0.1:8000/api/category/${currentCategory.id}`,
+          currentCategory,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      } else {
+        await axios.post(
+          "http://127.0.0.1:8000/api/category",
+          currentCategory,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      }
+      fetchCategories();
+      closeModal();
+    } catch (error) {
+      if (error.response && error.response.data) {
+        setErrors(error.response.data.errors);
+      } else {
+        setErrors("Terjadi kesalahan, silakan coba lagi.");
+      }
     }
-    closeModal();
   };
 
-  const handleDelete = (id) => {
-    setCategories((prev) => prev.filter((cat) => cat.id !== id));
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this category?"))
+      return;
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api/category/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchCategories();
+    } catch (error) {
+      console.error("Error deleting category", error);
+    }
   };
 
   return (
     <div className="py-10 px-32">
-      <div className="mb-14 flex flex-col gap-3">
-        <h1 className="text-3xl font-bold text-gray-800">
+      <div className="mb-14">
+        <h1 className="text-4xl font-bold text-gray-800">
           Category Management
         </h1>
-        <p className="text-gray-500">
-          Manage categories for your articles easily.
+        <p className="text-slate-500 text-sm mt-3 w-3/4">
+          This page allows you to manage the categories used in the system. You
+          can add, edit, delete, as well search categories easily. Use search
+          and sort features to find the desired category faster.
         </p>
       </div>
 
@@ -79,81 +118,76 @@ function Category() {
         <input
           type="text"
           placeholder="Search category..."
-          className="border border-gray-300 px-3 py-2 rounded-lg w-80 focus:outline-none focus:ring-2 focus:ring-red-400"
+          className="border border-gray-300 px-3 py-2 rounded-lg w-80 focus:outline-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <button
-          className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-red-700"
+          className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center gap-2"
           onClick={() => openModal()}
         >
-          <IoMdAdd className="text-xl" /> Add Category
+          <IoMdAdd /> Add Category
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white  rounded-lg">
-          <thead>
+      <table className="min-w-full bg-white rounded-lg">
+        <thead>
           <tr className="bg-gray-100 text-gray-600">
-              <th className="py-3 px-4 text-left">#</th>
-              <th
-                className="py-3 px-4 text-left flex items-center gap-2 cursor-pointer"
-                onClick={toggleSort}
+            <th className="py-3 px-4">#</th>
+            <th
+              className="py-3 px-4 flex items-center gap-2 cursor-pointer"
+              onClick={toggleSort}
+            >
+              Category Name <FaSort />
+            </th>
+            <th className="py-3 px-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedCategories.length > 0 ? (
+            sortedCategories.map((category, index) => (
+              <tr
+                key={category.id}
+                className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
               >
-                Category Name <FaSort />
-              </th>
-              <th className="py-3 px-4 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedCategories.length > 0 ? (
-              sortedCategories.map((category, index) => (
-                <tr
-                  key={category.id}
-                  className={`border-t ${
-                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  }`}
-                >
-                  <td className="py-3 px-4">{index + 1}</td>
-                  <td className="py-3 px-4">{category.name}</td>
-                  <td className="py-3 px-4 flex gap-2">
-                    <button
-                      className="text-blue-500 hover:text-blue-700"
-                      onClick={() => openModal(category)}
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      className="text-red-500 hover:text-red-700"
-                      onClick={() => handleDelete(category.id)}
-                    >
-                      <FaTrash />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="3" className="py-3 px-4 text-center text-gray-500">
-                  No categories found.
+                <td className="py-3 px-4">{index + 1}</td>
+                <td className="py-3 px-4">{category.name}</td>
+                <td className="py-3 px-4 flex gap-2">
+                  <button
+                    className="text-blue-500"
+                    onClick={() => openModal(category)}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="text-red-500"
+                    onClick={() => handleDelete(category.id)}
+                  >
+                    <FaTrash />
+                  </button>
                 </td>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="3" className="py-4 text-center text-gray-500">
+                Tidak ada data
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg w-96">
             <h2 className="text-xl font-bold mb-4">
               {isEdit ? "Edit Category" : "Add Category"}
             </h2>
             <form onSubmit={handleSubmit}>
-              <label className="block mb-2 text-gray-600">Category Name</label>
               <input
                 type="text"
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none"
                 value={currentCategory.name}
                 onChange={(e) =>
                   setCurrentCategory({
@@ -161,19 +195,22 @@ function Category() {
                     name: e.target.value,
                   })
                 }
-                placeholder="Category"
-             />
-              <div className="flex justify-end mt-4">
+                placeholder="Category Name"
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">{errors.name[0]}</p>
+              )}
+              <div className="flex justify-end mt-4 gap-4">
                 <button
                   type="button"
-                  className="bg-gray-500 text-white px-4 py-2 rounded-lg cursor-pointer mr-2"
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg"
                   onClick={closeModal}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg"
                 >
                   {isEdit ? "Update" : "Create"}
                 </button>

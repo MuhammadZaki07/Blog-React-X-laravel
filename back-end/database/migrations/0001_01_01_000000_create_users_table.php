@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('full_name');
             $table->string('email')->unique();
-            $table->integer('no_tlp')->nullable();
+            $table->string('no_tlp',100)->nullable();
             $table->binary('image')->nullable();
             $table->string('password');
             $table->enum('gender', ['male', 'female', 'other']);
             $table->enum('role', ['admin', 'user'])->default('user');
+            $table->enum('status', ['block', 'unblock'])->default('unblock');
             $table->text('bio')->nullable();
             $table->timestamps();
         });

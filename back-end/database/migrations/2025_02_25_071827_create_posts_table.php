@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->text('body');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('id_category')->constrained('categories')->onDelete('cascade');
-            $table->string('status')->default('draft');
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('restrict');
+            $table->enum('status',['active','non-active'])->default('active');
             $table->string('slug')->unique();
             $table->timestamps();
         });

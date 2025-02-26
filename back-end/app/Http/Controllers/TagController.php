@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class TagController extends Controller
 {
@@ -11,7 +13,8 @@ class TagController extends Controller
      */
     public function index()
     {
-        //
+        $tags = Tag::all();
+        return response()->json($tags, 200);
     }
 
     /**
@@ -27,7 +30,25 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validation = Validator::make($request->all(), [
+            "name" => ["required", "string", "regex:/^\S+$/", "unique:tags,name"]
+        ]);
+
+        if ($validation->fails()) {
+            return response()->json(["errors" => $validation->errors()], 422);
+        }
+
+        $tagName = $request->name;
+        if ($tagName[0] !== "#") {
+            $tagName = "#" . $tagName;
+        }
+
+        $tag = Tag::create([
+            "name" => $tagName
+        ]);
+
+        return response()->json($tag, 201);
+
     }
 
     /**
@@ -43,7 +64,8 @@ class TagController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $tag = Tag::findOrFail($id);
+        return response()->json($tag, 200);
     }
 
     /**
@@ -51,7 +73,18 @@ class TagController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validation = Validator::make($request->all(), [
+            "name" => "required|string|unique:tags,name"
+        ]);
+        if ($validation->fails()) {
+            return response()->json(["error" => $validation->errors()], 422);
+        }
+
+        $tag = Tag::findOrFail($id);
+        $tag->update([
+            "name" => $request->name
+        ]);
+        return response()->json($tag, 200);
     }
 
     /**
@@ -59,6 +92,8 @@ class TagController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $tag = Tag::findOrFail($id);
+        $tag->delete();
+        return response()->json( $tag,200);
     }
 }

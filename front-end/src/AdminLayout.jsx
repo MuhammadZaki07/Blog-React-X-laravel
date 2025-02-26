@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./components/user/Sidebar";
 import NavDash from "./components/user/NavDash";
-import { BookOpen, LayoutDashboard, Tags, User, UserCircle } from "lucide-react";
+import { BookOpen, DoorClosed, LayoutDashboard, Tags, User, UserCircle } from "lucide-react";
 import { MdCategory } from "react-icons/md";
 import { GrArticle } from "react-icons/gr";
 
@@ -15,6 +15,7 @@ const AdminLayout = () => {
     { title: "Data User", icon: <User size={20} />, path: "/admin/data-user" },
     { title: "Data Article", icon: <GrArticle size={20} />, path: "/admin/data-article" },
     { title: "Profile", icon: <UserCircle size={20} />, path: "/admin/profile" },
+    { title: "Back", icon: <DoorClosed size={20} />, path: "/" },
   ];
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

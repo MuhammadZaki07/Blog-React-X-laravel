@@ -10,7 +10,7 @@ const Auth = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
-  const { setToken , token} = useContext(AuthContext);
+  const { setToken, token } = useContext(AuthContext);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -22,7 +22,7 @@ const Auth = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-  
+
     try {
       const response = await axios.post(
         "http://127.0.0.1:8000/api/register",
@@ -33,17 +33,16 @@ const Auth = () => {
           },
         }
       );
-  
+
       const data = response.data;
-      console.log("Register Response:", data); // Debugging
-  
       if (data.errors) {
         setErrors(data.errors);
       } else {
         localStorage.setItem("token", data.token);
         setToken(data.token);
         localStorage.setItem("role", data.role);
-  
+        setErrors(null);
+
         if (data.role === "admin") {
           navigate("/admin/dashboard");
         } else {
@@ -54,12 +53,11 @@ const Auth = () => {
       setErrors(error.response?.data?.errors || {});
     }
   };
-  
 
   const handleLogin = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-  
+
     try {
       const response = await axios.post(
         "http://127.0.0.1:8000/api/login",
@@ -70,14 +68,13 @@ const Auth = () => {
           },
         }
       );
-  
+
       const data = response.data;
-      console.log("Login Response:", data);
-  
       if (data.token) {
         localStorage.setItem("token", data.token);
         setToken(data.token);
-  
+        setErrors(null)
+
         if (data.role === "admin") {
           navigate("/admin/dashboard");
         } else {
@@ -85,10 +82,15 @@ const Auth = () => {
         }
       }
     } catch (error) {
-      setErrors(error.response?.data?.errors || {});
+      if (error.response) {
+        setErrors(
+          error.response.data.errors || { message: error.response.data.message }
+        );
+      } else {
+        setErrors({ message: "Something went wrong" });
+      }
     }
   };
-  
 
   return (
     <div className="bg-gradient-to-br from-white-100 to-red-100 min-h-screen flex items-center justify-center p-4">
