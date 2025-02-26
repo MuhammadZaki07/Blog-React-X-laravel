@@ -80,7 +80,6 @@ function Create() {
     });
 
     try {
-      console.log("Token yang dikirim:", token);
       await axios.post("http://localhost:8000/api/article", data, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -88,8 +87,6 @@ function Create() {
         },
       });
       
-      
-
       setFormData({
         title: "",
         body: "",

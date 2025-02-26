@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -12,10 +13,10 @@ class PostController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-{
-    $posts = Post::with('category')->get();
-    return response()->json($posts);
-}
+    {
+        $posts = Post::with('category')->get();
+        return response()->json($posts);
+    }
 
 
     /**
@@ -73,7 +74,8 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $post = Post::findOrFail($id);
+        return response()->json($post,200);
     }
 
     /**
@@ -81,7 +83,8 @@ class PostController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $post = Post::findOrFail($id);
+        return response()->json($post,200);
     }
 
     /**
@@ -97,6 +100,11 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $post = Post::firstOrFail($id);
+        Storage::disk('public')->delete($post->image);
+        $post->delete();
+        return response()->json([
+            "message" => "success",
+        ],200);
     }
 }

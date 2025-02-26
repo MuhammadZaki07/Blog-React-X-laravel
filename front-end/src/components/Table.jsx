@@ -3,12 +3,11 @@ import PropTypes from "prop-types";
 import { Search, ArrowUpDown } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const TableComponent = ({ columns, data, onEdit, onDelete }) => {
+const TableComponent = ({ columns, data, onDelete }) => {
   const [search, setSearch] = useState("");
   const [sortedData, setSortedData] = useState([]);
   const [isAscending, setIsAscending] = useState(true);
 
-  // **Update sortedData ketika data berubah**
   useEffect(() => {
     setSortedData(data);
   }, [data]);
@@ -59,7 +58,7 @@ const TableComponent = ({ columns, data, onEdit, onDelete }) => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full border border-gray-300">
+        <table className="w-full mt-10">
           <thead>
             <tr className="bg-gray-100 text-gray-600">
               {columns.map((col) => (
@@ -75,7 +74,7 @@ const TableComponent = ({ columns, data, onEdit, onDelete }) => {
               filteredData.map((row, index) => (
                 <tr
                   key={index}
-                  className="border-b border-gray-300 hover:bg-gray-100"
+                  className="border-b border-gray-300 hover:bg-gray-50"
                 >
                   {columns.map((col) => (
                     <td key={col.key} className="p-3">
@@ -93,15 +92,24 @@ const TableComponent = ({ columns, data, onEdit, onDelete }) => {
                     </td>
                   ))}
                   <td className="p-3 text-center">
-                    <button
+                    <Link
+                      to={`/admin/edit/${row.id}`}
                       className="bg-blue-500 text-white px-3 py-2 cursor-pointer rounded-lg hover:bg-blue-600 mr-2"
-                      onClick={() => onEdit(row)}
                     >
                       Edit
-                    </button>
+                    </Link>
+
                     <button
                       className="bg-red-500 text-white px-3 py-2 cursor-pointer rounded-lg hover:bg-red-600"
-                      onClick={() => onDelete(row)}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Are you sure you want to delete ${row.title}?`
+                          )
+                        ) {
+                          onDelete(row.id);
+                        }
+                      }}
                     >
                       Delete
                     </button>

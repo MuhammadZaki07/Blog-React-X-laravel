@@ -5,13 +5,17 @@ import { AuthContext } from "../../context/AuthContext";
 const Navbar = () => {
   const { user,token } = useContext(AuthContext);
   const [direct, setDirect] = useState("");
+  const [loading,setLoading] = useState(false);
 
   useEffect(() => {
-    console.log("Data user saat ini:", user);
-    if (user && user.role) {
+    if (!user) {
+      setLoading(true);
+    } else {
       setDirect(user.role === "admin" ? "/admin/dashboard" : "/user/dashboard");
+      setLoading(false);
     }
   }, [user]);
+  
   return (
     <nav className="w-full bg-slate-900 flex justify-between px-32 py-4.5 items-center border-b border-b-slate-500/[0.5]">
       <div>
@@ -30,22 +34,19 @@ const Navbar = () => {
         </form>
 
         <div>
-          {!token ? (
-            <Link
-              to={`/auth`}
-              className="text-white py-1.5 px-4 rounded-lg text-lg hover:text-slate-300 cursor-pointer"
-            >
-              Masuk
-            </Link>
-          ) : (
-            <Link
-              to={direct}
-              className="text-white py-1.5 px-4 rounded-lg text-lg hover:text-slate-300 cursor-pointer"
-            >
-              dashboard <i className="bi bi-arrow-bar-right"></i>
-            </Link>
-          )}
-        </div>
+  {loading ? (
+    <h1 className="text-slate-400 text-sm">Loading..</h1>
+  ) : !token ? (
+    <Link to={`/auth`} className="text-white py-1.5 px-4 rounded-lg text-lg hover:text-slate-300 cursor-pointer">
+      Masuk
+    </Link>
+  ) : (
+    <Link to={direct} className="text-white py-1.5 px-4 rounded-lg text-lg hover:text-slate-300 cursor-pointer">
+      dashboard <i className="bi bi-arrow-bar-right"></i>
+    </Link>
+  )}
+</div>
+
       </div>
     </nav>
   );

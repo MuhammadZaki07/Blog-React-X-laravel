@@ -33,16 +33,9 @@ function MyArticle() {
   }, []);
   
 
-  const handleEdit = (row) => {
-    console.log("Edit clicked:", row);
-  };
-
   const handleDelete = (row) => {
     console.log("Delete clicked:", row);
   };
-
-  console.log(articles);
-  
 
   return (
     <div className="w-full py-10 px-10 lg:px-44">
@@ -56,7 +49,7 @@ function MyArticle() {
         </Link>
       </div>
 
-      <Table columns={columns} data={articles} onEdit={handleEdit} onDelete={handleDelete} />
+      <Table columns={columns} data={articles} onDelete={handleDelete} />
     </div>
   );
 }
