@@ -87,15 +87,16 @@ function EditArticle() {
   };
 
   const handleEditorChange = (content) => {
-    setFormData((prev) => ({ ...prev, content }));
-  };
+    setFormData((prev) => ({ ...prev, body: content }));
+  };  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formDataToSend = new FormData();
+    formDataToSend.append("_method", "PUT");
     formDataToSend.append("title", formData.title);
-    formDataToSend.append("body", formData.content);
+    formDataToSend.append("body", formData.body);
     formDataToSend.append("category_id", formData.category_id);
     formDataToSend.append("status", formData.status);
     if (formData.image) {
@@ -110,8 +111,7 @@ function EditArticle() {
           headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
         }
       );
-      alert("Article updated successfully!");
-      navigate("/admin/articles");
+      navigate("/admin/my-article");
     } catch (error) {
       console.error("Error updating article:", error);
       if (error.response?.data?.errors) {
@@ -158,7 +158,7 @@ function EditArticle() {
               <input
                 type="text"
                 name="slug"
-                value={formData.title.replace(/\s+/g, '-').toLowerCase()} // Generate slug from title
+                value={formData.title.replace(/\s+/g, '-').toLowerCase()}
                 readOnly
                 className="w-full px-4 py-2 bg-gray-100 border rounded-lg focus:outline-none border-slate-500/[0.5]"
               />
@@ -280,7 +280,7 @@ function EditArticle() {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-red-600"
+              className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-red-600 cursor-pointer"
             >
               <Save size={20} /> Save
             </button>

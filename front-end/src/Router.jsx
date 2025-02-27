@@ -2,11 +2,6 @@ import { createBrowserRouter } from "react-router-dom";
 import DefaultLayout from "./DefaultLayout";
 import UserLayout from "./Userlayout";
 import Beranda from "./page/Beranda";
-import Politik from "./page/Politik";
-import Ekonomi from "./page/Ekonomi";
-import Olahraga from "./page/Olahraga";
-import Teknologi from "./page/Teknologi";
-import Hiburan from "./page/Hiburan";
 import UserDashboard from "./page/user/Dashboard";
 import EditProfile from "./page/user/Profile";
 import Create from "./page/user/Article/Create";
@@ -25,6 +20,9 @@ import DataArticle from "./page/admin/DataArticle";
 import Profile from "./page/admin/Profile";
 import Tags from "./page/admin/Tags";
 import CreateUser from "./page/admin/CreateUser";
+import CategoryPage from "./page/CategoryPage";
+import PostAll from "./page/PostAll";
+import DetailBlog from "./page/DetailBlog";
 export const route = createBrowserRouter([
   {
     path: "/",
@@ -34,30 +32,15 @@ export const route = createBrowserRouter([
         path: "/",
         element: <Beranda />,
       },
+      { path: "category/:categoryName", element: <CategoryPage /> },
       {
-        path: "/politik",
-        element: <Politik />,
+        path:"post-all",
+        element:<PostAll/>
       },
-
       {
-        path: "/ekonomi",
-        element: <Ekonomi />,
-      },
-
-      {
-        path: "/olahraga",
-        element: <Olahraga />,
-      },
-
-      {
-        path: "/teknologi",
-        element: <Teknologi />,
-      },
-
-      {
-        path: "/hiburan",
-        element: <Hiburan />,
-      },
+        path:"detail-post/:slug",
+        element:<DetailBlog/>
+      }
     ],
   },
   {
@@ -81,7 +64,7 @@ export const route = createBrowserRouter([
         element: <Artikelku />,
       },
       {
-        path: "edit",
+        path: "edit/:id",
         element: <EditArtikel />,
       },
     ],

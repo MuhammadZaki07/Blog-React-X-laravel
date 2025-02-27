@@ -1,10 +1,11 @@
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
-const JumboCard = ({ image, title }) => {
+const JumboCard = ({ image, title,create,view,slug }) => {
   return (
-    <div className="overflow-hidden relative">
+    <Link to={`detail-post/${slug}`} className="overflow-hidden relative">
       <img
-        src={`/assets/${image}`}
+        src={`http://127.0.0.1:8000/storage/${image}`}
         alt={title}
         className="w-full h-[450px] object-cover"
       />
@@ -17,16 +18,16 @@ const JumboCard = ({ image, title }) => {
           <div className="flex gap-2 items-center">
             <i className="bi bi-calendar-event text-red-500"></i>
             <h1 className="text-gray-300 font-normal text-xs">
-              5 desember 2024
+             {create}
             </h1>
           </div>
           <div className="flex gap-2 items-center">
             <i className="bi bi-eye text-red-500"></i>
-            <h1 className="text-gray-300 font-normal text-xs">100 dilihat</h1>
+            <h1 className="text-gray-300 font-normal text-xs">{view} dilihat</h1>
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

@@ -1,43 +1,35 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { AuthContext } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 
-const SelectEditor = () => {
+function PostAll() {
   const [articles, setArticles] = useState([]);
-  const { token } = useContext(AuthContext);
 
-  const fetchUserArticles = async () => {
-    if (!token) return;
-
+  const fetchAllArticles = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/user/articles", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get("http://127.0.0.1:8000/api/articles/all");
       setArticles(response.data);
     } catch (error) {
-      console.error("Error fetching user articles:", error);
+      console.error("Error fetching articles:", error);
     }
   };
 
   useEffect(() => {
-    fetchUserArticles();
-  }, [token]); 
+    fetchAllArticles();
+  }, []);
 
   return (
     <section className="w-full bg-gray-200/[0.5] px-44 py-14">
       <div>
-        <h1 className="text-5xl font-bold">Pilihan Editor</h1>
+        <h1 className="text-5xl font-bold">Article All</h1>
         <div className="w-52 bg-red-500 h-0.5"></div>
       </div>
 
       <div className="grid grid-cols-3 gap-5 py-16">
         {articles.length > 0 ? (
           articles.map((article) => (
-            <div key={article.id} className="w-full">
-              <Link to={`detail-post/${article.slug}`} className="relative rounded-lg overflow-hidden">
+            <Link to={`/detail-post/${article.slug}`} key={article.id} className="w-full">
+              <div className="relative rounded-lg overflow-hidden">
                 <img
                   src={article.image ? `http://127.0.0.1:8000/storage/${article.image}` : "/assets/news-1.jpg"}
                   alt={article.title}
@@ -46,7 +38,7 @@ const SelectEditor = () => {
                 <h1 className="absolute left-5 top-8 text-white bg-red-500 rounded-lg py-2 px-3 font-light text-sm">
                   {article.category?.name || "Tanpa Kategori"}
                 </h1>
-              </Link>
+              </div>
               <div className="flex gap-5 items-center py-5">
                 <img src="/assets/user.png" alt="User" className="w-10 rounded-full" />
                 <h1 className="font-normal text-slate-500 text-lg underline">
@@ -70,20 +62,14 @@ const SelectEditor = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))
         ) : (
           <p className="text-gray-500">Tidak ada artikel tersedia</p>
         )}
       </div>
-
-      <div className="flex justify-center">
-        <Link to={`post-all`} className="w-1/6 hover:bg-red-500 transition-all duration-500 ease-in-out hover:text-white text-red-500 font-medium py-4 rounded-lg cursor-pointer text-center">
-          Lihat lainnya <i className="bi bi-arrow-right"></i>
-        </Link>
-      </div>
     </section>
   );
-};
+}
 
-export default SelectEditor;
+export default PostAll;

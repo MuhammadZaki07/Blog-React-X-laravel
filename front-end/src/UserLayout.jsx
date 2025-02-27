@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "./components/user/Sidebar";
 import NavDash from "./components/user/NavDash";
 import { BookOpen, LayoutDashboard, UserCircle } from "lucide-react";
+import { AuthContext } from "../context/AuthContext";
 
 const UserLayout = () => {
   const menuItems = [
@@ -12,6 +13,8 @@ const UserLayout = () => {
   ];
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
+  const {token,user} = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -20,6 +23,7 @@ const UserLayout = () => {
   const isEditArtikelPage = location.pathname.includes(
     "/dashboard/editartikel"
   );
+
 
   return (
     <div className="flex h-screen">

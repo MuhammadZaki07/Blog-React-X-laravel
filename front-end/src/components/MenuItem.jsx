@@ -1,14 +1,22 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 
 const MenuItem = ({ label, path, submenu }) => {
   const [isOpen, setIsOpen] = useState(false);
   let timeout;
+  const { categoryName } = useParams();
+  const location = useLocation();
+
+  const isActive =
+    (path && location.pathname === path) ||
+    (path && categoryName && path.includes(categoryName));
 
   return (
     <li
-      className="relative cursor-pointer text-white  hover:text-red-500 group"
+      className={`relative cursor-pointer group ${
+        isActive ? "border-b border-b-red-500 text-red-500" : "text-white hover:text-red-500"
+      }`}
       onMouseEnter={() => {
         clearTimeout(timeout);
         setIsOpen(true);
@@ -19,11 +27,7 @@ const MenuItem = ({ label, path, submenu }) => {
     >
       <div className="flex items-center gap-2.5">
         {path ? (
-          <Link
-            to={path}
-            className="block"
-            onClick={() => console.log(`"${label}" diklik, menuju: ${path}`)}
-          >
+          <Link to={path} className="block relative">
             {label}
           </Link>
         ) : (

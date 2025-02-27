@@ -20,9 +20,14 @@ class CategoryController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function popularCategories()
     {
-        //
+        $categories = Category::withCount('articles')
+            ->orderByDesc('articles_count')
+            ->limit(5)
+            ->get();
+
+        return response()->json($categories);
     }
 
     /**

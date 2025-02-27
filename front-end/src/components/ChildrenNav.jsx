@@ -15,7 +15,7 @@
           <h1 className="text-white font-medium">{currentDate}</h1>
         </div>
 
-        <ul className="flex gap-15">
+        <ul className="flex gap-15 justify-center">
           {items.map((item, index) => (
             <MenuItem key={index} label={item.label} path={item.path} submenu={item.submenu} />
           ))}

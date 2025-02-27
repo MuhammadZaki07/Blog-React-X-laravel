@@ -31,6 +31,10 @@ class AuthController extends Controller
             return response()->json(["error" => "Email atau password salah"], 401);
         }
 
+        if ($user->status === 'block') {
+            return response()->json(["error" => "Akun Anda telah diblokir, silakan hubungi admin."], 403);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -41,8 +45,10 @@ class AuthController extends Controller
         ], 200);
     }
 
-    public function register(Request $request){
-        $validation = Validator::make($request->all(),[
+
+    public function register(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
             "username" => "required|string|max:255",
             "email" => "required|string|email|unique:users,email",
             "password" => "required|string|min:8|confirmed"
@@ -66,12 +72,19 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function logout(Request $request){
-        $user = $request->user();
-        if ($user) {
+    public function logout(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (!$user) {
+                return response()->json(["error" => "Token tidak valid atau pengguna tidak ditemukan"], 401);
+            }
             $user->currentAccessToken()->delete();
-            return response($user,200);
+
+            return response()->json(["message" => "Logout berhasil"], 200);
+        } catch (\Exception $e) {
+            return response()->json(["error" => "Terjadi kesalahan saat logout"], 500);
         }
-        return response("invalid_token",500);
     }
 }

@@ -4,9 +4,10 @@ import { Camera, Save, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../../../context/AuthContext";
+import TagSelect from "../../../components/TagSelect";
 
 function Create() {
-  const { token } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
   const [previewImage, setPreviewImage] = useState(null);
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
@@ -16,9 +17,10 @@ function Create() {
     body: "",
     category_id: "",
     status: "active",
+    user_id: "",
     image: null,
+    tags: [],
   });
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +37,6 @@ function Create() {
         console.error("Error fetching categories:", error);
       });
   }, []);
-  
 
   useEffect(() => {
     const slug = formData.title
@@ -74,37 +75,54 @@ function Create() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      data.append(key, value);
-    });
+    const formDataToSend = new FormData();
+    formDataToSend.append("title", formData.title);
+    formDataToSend.append("slug", formData.slug);
+    formDataToSend.append("body", formData.body);
+    formDataToSend.append("category_id", formData.category_id);
+    formDataToSend.append("status", formData.status);
+    formDataToSend.append("user_id", user?.id);
+
+    if (formData.image) {
+      formDataToSend.append("image", formData.image);
+    }
+
+    if (Array.isArray(formData.tags) && formData.tags.length > 0) {
+      formData.tags.forEach((tag) => {
+        formDataToSend.append("tags[]", tag);
+      });
+    }
 
     try {
-      await axios.post("http://localhost:8000/api/article", data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      
+       await axios.post(
+        "http://localhost:8000/api/article",
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token.trim()}`,
+            Accept: "application/json",
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       setFormData({
         title: "",
+        slug: "",
         body: "",
         category_id: "",
+        status: "active",
         image: null,
+        tags: [],
       });
-
       navigate("/admin/my-article");
     } catch (error) {
       console.error("Error saat mengirim data:", error);
       console.log("Detail error:", error.response?.data);
-
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       }
     }
   };
-
   return (
     <div className="py-10">
       <div className="max-w-4xl mx-auto bg-white rounded-xl border border-slate-300/[0.5] overflow-hidden">
@@ -159,7 +177,7 @@ function Create() {
               </label>
               <select
                 name="category_id"
-                value={formData.category}
+                value={formData.category_id}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none border-slate-500/[0.5]"
               >
@@ -196,48 +214,60 @@ function Create() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Article Image
-            </label>
-            <div className="flex items-center space-x-6">
-              <div className="relative">
-                <div className="w-32 h-32 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
-                  {previewImage ? (
-                    <img
-                      src={previewImage}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <Camera className="w-12 h-12 text-slate-400" />
+          <div className="grid grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Article Image
+              </label>
+              <div className="flex items-center space-x-6">
+                <div className="relative">
+                  <div className="w-32 h-32 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
+                    {previewImage ? (
+                      <img
+                        src={previewImage}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Camera className="w-12 h-12 text-slate-400" />
+                    )}
+                  </div>
+                  {previewImage && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X size={16} />
+                    </button>
                   )}
                 </div>
-                {previewImage && (
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                  >
-                    <X size={16} />
-                  </button>
-                )}
+                <label className="bg-slate-900 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-red-600">
+                  <span className="flex items-center gap-2">
+                    <Camera size={20} /> Upload Image
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                </label>
               </div>
-              <label className="bg-slate-900 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-red-600">
-                <span className="flex items-center gap-2">
-                  <Camera size={20} /> Upload Image
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
-              </label>
+              {errors.image && (
+                <p className="text-red-500 text-sm mt-1">{errors.image[0]}</p>
+              )}
             </div>
-            {errors.image && (
-              <p className="text-red-500 text-sm mt-1">{errors.image[0]}</p>
-            )}
+            <div className="">
+              <TagSelect
+                onChange={(tagIds) => {
+                  setFormData((prev) => ({ ...prev, tags: tagIds }));
+                }}
+              />
+              {errors.tags && (
+                <p className="text-red-500 text-sm mt-1">{errors.tags[0]}</p>
+              )}
+            </div>
           </div>
 
           <div>

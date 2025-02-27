@@ -1,11 +1,12 @@
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
-const CardMini = ({ image, title,category }) => {
+const CardMini = ({ image, title,category,create,view,slug }) => {
   return (
-    <div className="card-2 flex gap-5 items-center">
+    <Link to={`detail-post/${slug}`} className="card-2 flex gap-5 items-center">
       <div>
         <img
-          src={`/assets/${image}`}
+          src={`http://127.0.0.1:8000/storage/${image}`}
           className="w-full h-32 rounded-lg object-cover"
           alt={title}
         />
@@ -20,17 +21,17 @@ const CardMini = ({ image, title,category }) => {
             <div className="flex gap-2 items-center">
               <i className="bi bi-calendar-event text-red-500"></i>
               <h1 className="text-slate-500 font-normal text-xs">
-                4 oktober 2025
+               {create}
               </h1>
             </div>
             <div className="flex gap-2 items-center">
               <i className="bi bi-eye text-red-500"></i>
-              <h1 className="text-slate-500 font-normal text-xs">100</h1>
+              <h1 className="text-slate-500 font-normal text-xs">{view}</h1>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

@@ -33,9 +33,23 @@ function MyArticle() {
   }, []);
   
 
-  const handleDelete = (row) => {
-    console.log("Delete clicked:", row);
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this article?")) {
+      try {
+        await axios.delete(`http://localhost:8000/api/article/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        alert("Article deleted successfully!");
+        window.location.reload();
+      } catch (error) {
+        console.error("Error deleting article:", error);
+        alert("Failed to delete article. Please try again.");
+      }
+    }
   };
+  
 
   return (
     <div className="w-full py-10 px-10 lg:px-44">

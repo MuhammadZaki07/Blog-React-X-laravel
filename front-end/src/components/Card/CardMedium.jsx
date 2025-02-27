@@ -1,11 +1,12 @@
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
-const CardMedium = ({image,category,title}) => {
+const CardMedium = ({image,category,title,create,view,slug}) => {
   return (
-    <div className="card-1">
+    <Link to={`detail-post/${slug}`} className="card-1">
       <div className="overflow-hidden relative">
         <img
-          src={`/assets/${image}`}
+          src={`http://127.0.0.1:8000/storage/${image}`}
           alt={title}
           className="w-full h-60 object-cover rounded-lg"
         />
@@ -22,16 +23,16 @@ const CardMedium = ({image,category,title}) => {
           <div className="flex gap-2 items-center">
             <i className="bi bi-calendar-event text-red-500"></i>
             <h1 className="text-slate-500 font-normal text-xs">
-              4 oktober 2025
+              {create}
             </h1>
           </div>
           <div className="flex gap-2 items-center">
             <i className="bi bi-eye text-red-500"></i>
-            <h1 className="text-slate-500 font-normal text-xs">100 dilihat</h1>
+            <h1 className="text-slate-500 font-normal text-xs">{view} dilihat</h1>
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

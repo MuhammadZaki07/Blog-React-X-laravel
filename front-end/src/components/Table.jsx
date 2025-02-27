@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types";
 import { Search, ArrowUpDown } from "lucide-react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 const TableComponent = ({ columns, data, onDelete }) => {
   const [search, setSearch] = useState("");
   const [sortedData, setSortedData] = useState([]);
   const [isAscending, setIsAscending] = useState(true);
+  const {user} = useContext(AuthContext);
 
   useEffect(() => {
     setSortedData(data);
@@ -93,7 +95,9 @@ const TableComponent = ({ columns, data, onDelete }) => {
                   ))}
                   <td className="p-3 text-center">
                     <Link
-                      to={`/admin/edit/${row.id}`}
+                     to={`/${user.role === "admin" ? "admin" : "user"}/edit/${
+                      row.id
+                    }`}
                       className="bg-blue-500 text-white px-3 py-2 cursor-pointer rounded-lg hover:bg-blue-600 mr-2"
                     >
                       Edit

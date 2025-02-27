@@ -1,12 +1,15 @@
-import { useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "./components/user/Sidebar";
 import NavDash from "./components/user/NavDash";
 import { BookOpen, DoorClosed, LayoutDashboard, Tags, User, UserCircle } from "lucide-react";
 import { MdCategory } from "react-icons/md";
 import { GrArticle } from "react-icons/gr";
+import { AuthContext } from "../context/AuthContext";
 
 const AdminLayout = () => {
+  const {token} = useContext(AuthContext);
+  const navigate = useNavigate();
   const menuItems = [
     { title: "Dashboard", icon: <LayoutDashboard size={20} />, path: "/admin/dashboard" },
     { title: "Article", icon: <BookOpen size={20} />, path: "/admin/my-article" },
@@ -26,6 +29,12 @@ const AdminLayout = () => {
   const isEditArtikelPage = location.pathname.includes(
     "/dashboard/editartikel"
   );
+
+  useEffect(() => {
+    if(!token){
+      navigate("/")
+    }
+  });
 
   return (
     <div className="flex h-screen">

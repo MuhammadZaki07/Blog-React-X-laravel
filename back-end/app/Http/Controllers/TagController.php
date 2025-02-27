@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PostTag;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -24,6 +25,13 @@ class TagController extends Controller
     {
         //
     }
+
+    public function show($id)
+    {
+        $tag = Tag::findOrFail($id);
+        return response()->json($tag);
+    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -48,16 +56,11 @@ class TagController extends Controller
         ]);
 
         return response()->json($tag, 201);
-
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -94,6 +97,6 @@ class TagController extends Controller
     {
         $tag = Tag::findOrFail($id);
         $tag->delete();
-        return response()->json( $tag,200);
+        return response()->json($tag, 200);
     }
 }
