@@ -38,6 +38,8 @@ Route::get('/news',  [PostController::class, 'getRandomNews']);
 Route::get('/categories/popular', [CategoryController::class, 'popularCategories']);
 Route::get('/articles', [PostController::class, 'latestArticles']);
 Route::get('/articles/all', [PostController::class, 'index']);
+Route::get('/post', [PostController::class, 'allArticles']);
+Route::get('/post/all', [PostController::class, 'allActiveArticles']);
 Route::get('/articles', [PostController::class, 'index2']);
 Route::get('/posts/{slug}', [PostController::class, 'show2']);
 

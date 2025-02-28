@@ -11,7 +11,7 @@ const SelectEditor = () => {
     if (!token) return;
 
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/user/articles", {
+      const response = await axios.get("http://127.0.0.1:8000/api/post/all", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

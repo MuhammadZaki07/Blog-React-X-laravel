@@ -11,7 +11,7 @@ function DataArticle() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/article",{
+      .get("http://localhost:8000/api/post",{
         headers : {
           Authorization: `Bearer ${token}`
         }

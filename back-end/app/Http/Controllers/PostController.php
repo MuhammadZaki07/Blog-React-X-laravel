@@ -31,12 +31,32 @@ class PostController extends Controller
 
         return response()->json($articles);
     }
+
+    public function allArticles()
+    {
+        $articles = Post::with('category', 'user')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($articles);
+    }
+
+    public function allActiveArticles()
+    {
+        $articles = Post::with('category', 'user')
+            ->where('status', 'active')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($articles);
+    }
     public function index2(Request $request)
     {
         $categoryName = $request->query('category');
 
         if ($categoryName) {
             $articles = Post::with(['category', 'user'])
+                ->where('status', 'active')
                 ->whereHas('category', function ($query) use ($categoryName) {
                     $query->where('name', $categoryName);
                 })
@@ -44,6 +64,7 @@ class PostController extends Controller
                 ->get();
         } else {
             $articles = Post::with(['category', 'user'])
+                ->where('status', 'active')
                 ->orderBy('created_at', 'desc')
                 ->get();
         }
@@ -53,7 +74,12 @@ class PostController extends Controller
 
     public function getRandomNews()
     {
-        $news = Post::with('category')->inRandomOrder()->limit(10)->get();
+        $news = Post::with('category')
+            ->where('status', 'active')
+            ->inRandomOrder()
+            ->limit(10)
+            ->get();
+
         return response()->json($news);
     }
 
@@ -123,7 +149,12 @@ class PostController extends Controller
 
     public function latestArticles()
     {
-        $articles = Post::with('user', 'category')->latest()->take(5)->get();
+        $articles = Post::with('user', 'category')
+            ->where('status', 'active')
+            ->latest()
+            ->take(5)
+            ->get();
+
         return response()->json($articles);
     }
 

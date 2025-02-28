@@ -1,14 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 function PostAll() {
   const [articles, setArticles] = useState([]);
+  const {token} = useContext(AuthContext);
 
   const fetchAllArticles = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/articles/all");
+      const response = await axios.get("http://127.0.0.1:8000/api/post/all",{
+        headers : {
+          Authorization:`Bearer ${token}`
+        }
+      });
       setArticles(response.data);
+      
     } catch (error) {
       console.error("Error fetching articles:", error);
     }
